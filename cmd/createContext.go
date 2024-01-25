@@ -67,10 +67,10 @@ var createContextCmd = &cobra.Command{
 				context["nsq-lookupds"] = nsqLookupds
 			}
 			if nsqAdmin != "" {
-                                context["nsq-admin"] = nsqAdmin
+				context["nsq-admin"] = nsqAdmin
 			}
 			if httpHeaders != "" {
-                                context["http-headers"] = httpHeaders
+				context["http-headers"] = httpHeaders
 			}
 		}
 

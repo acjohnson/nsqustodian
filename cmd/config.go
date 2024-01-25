@@ -26,7 +26,7 @@ import (
 // configCmd represents the config command
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "config",
+	Short: "Modify the NSQustodian config",
 	Long:  `Modify the NSQustodian config file using subcommands like "nsqustodian config create-context my-context"`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
