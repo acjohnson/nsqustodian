@@ -31,6 +31,8 @@ var createContextCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		contextName, _ := cmd.Flags().GetString("name")
 		nsqLookupds, _ := cmd.Flags().GetString("nsq-lookupds")
+		nsqAdmin, _ := cmd.Flags().GetString("nsq-admin")
+		httpHeaders, _ := cmd.Flags().GetString("http-headers")
 
 		config := viper.GetViper()
 
@@ -42,6 +44,8 @@ var createContextCmd = &cobra.Command{
 				config.Set("contexts", map[string]interface{}{
 					contextName: map[string]interface{}{
 						"nsq-lookupds": nsqLookupds,
+						"nsq-admin":    nsqAdmin,
+						"http-headers": httpHeaders,
 					},
 				})
 			} else {
@@ -54,11 +58,19 @@ var createContextCmd = &cobra.Command{
 			if _, ok := contexts[contextName]; !ok {
 				contexts[contextName] = map[string]interface{}{
 					"nsq-lookupds": nsqLookupds,
+					"nsq-admin":    nsqAdmin,
+					"http-headers": httpHeaders,
 				}
 			}
 			context := contexts[contextName].(map[string]interface{})
 			if nsqLookupds != "" {
 				context["nsq-lookupds"] = nsqLookupds
+			}
+			if nsqAdmin != "" {
+                                context["nsq-admin"] = nsqAdmin
+			}
+			if httpHeaders != "" {
+                                context["http-headers"] = httpHeaders
 			}
 		}
 
@@ -90,9 +102,11 @@ var createContextCmd = &cobra.Command{
 
 func init() {
 	createContextCmd.Flags().StringP("name", "n", "", "Name of the context to create")
-	createContextCmd.MarkFlagRequired("name")
 	createContextCmd.Flags().StringP("nsq-lookupds", "l", "", "URIs for nsq-lookup (can be multiple URIs, comma-separated)")
-	createContextCmd.MarkFlagRequired("nsq-lookupds")
+	createContextCmd.Flags().StringP("nsq-admin", "a", "", "nsq-admin URI")
+	createContextCmd.Flags().StringP("http-headers", "e", "", "http headers to add to nsq-admin calls (comma-separated)")
+	createContextCmd.MarkFlagRequired("name")
+	createContextCmd.MarkFlagRequired("nsq-admin")
 	configCmd.AddCommand(createContextCmd)
 
 	// Here you will define your flags and configuration settings.
