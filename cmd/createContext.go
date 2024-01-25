@@ -34,27 +34,57 @@ var createContextCmd = &cobra.Command{
 
 		config := viper.GetViper()
 
-		if _, ok := config.Get("contexts").(map[string]interface{}); !ok {
-			config.Set("contexts", map[string]interface{}{})
-		}
-
-		contexts := config.Get("contexts").(map[string]interface{})
-
-		if _, ok := contexts[contextName]; ok {
-			fmt.Printf("Context '%s' already exists.\n", contextName)
-			return
-		}
-
-		contexts[contextName] = map[string]string{
-			"nsq-lookupds": nsqLookupds,
-		}
-
-		err := config.SafeWriteConfig()
+		// Read the existing config file
+		err := config.ReadInConfig()
 		if err != nil {
-			fmt.Printf("Failed to write config file: %s\n", err)
-			return
+			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+				// Config file not found, so create a new one
+				config.Set("contexts", map[string]interface{}{
+					contextName: map[string]interface{}{
+						"nsq-lookupds": nsqLookupds,
+					},
+				})
+			} else {
+				fmt.Printf("Failed to read config file: %s\n", err)
+				return
+			}
+		} else {
+			// Merge the new context into the existing config
+			contexts := config.Get("contexts").(map[string]interface{})
+			if _, ok := contexts[contextName]; !ok {
+				contexts[contextName] = map[string]interface{}{
+					"nsq-lookupds": nsqLookupds,
+				}
+			}
+			context := contexts[contextName].(map[string]interface{})
+			if nsqLookupds != "" {
+				context["nsq-lookupds"] = nsqLookupds
+			}
 		}
-		fmt.Printf("Context '%s' created successfully.\n", contextName)
+
+		// Write the updated config file back to disk
+		if err := config.WriteConfig(); err != nil {
+			fmt.Printf("%s\n", err)
+			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+				// SafeWriteConfig() creates the config
+				err = config.SafeWriteConfig()
+				if err != nil {
+					fmt.Printf("Failed to write config file: %s\n", err)
+					return
+				}
+				// WriteConfig() writes the new merged config...
+				err = config.WriteConfig()
+				if err != nil {
+					fmt.Printf("Failed to write config file: %s\n", err)
+					return
+				}
+
+				fmt.Printf("Context '%s' created successfully.\n", contextName)
+			}
+		} else {
+			fmt.Printf("Context '%s' created successfully.\n", contextName)
+
+		}
 	},
 }
 
