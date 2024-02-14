@@ -19,6 +19,7 @@ package cmd
 import (
 	"fmt"
 
+	config_loader "github.com/acjohnson/nsqustodian/cmd/config_loader"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +29,10 @@ var currentContextCmd = &cobra.Command{
 	Short: "Displays the currently active context in the config file.",
 	Long:  `Displays the currently active context in the config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("current-context called")
+		// Get the current config
+		config := config_loader.ConfigMap()
+		currentContext := config.Get("current_context").(string)
+		fmt.Printf("Current context is: %s\n", currentContext)
 	},
 }
 
