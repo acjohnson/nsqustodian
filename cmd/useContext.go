@@ -35,10 +35,7 @@ var useContextCmd = &cobra.Command{
 	},
 }
 
-func contextExists(name string) (bool, error) {
-	// Get the current config
-	config := config_loader.ConfigMap()
-
+func contextExists(name string, config *viper.Viper) (bool, error) {
 	// Check if the "contexts" key exists
 	contexts, ok := config.Get("contexts").(map[string]interface{})
 	if !ok {
@@ -51,9 +48,12 @@ func contextExists(name string) (bool, error) {
 }
 
 func useContextMain(cmd *cobra.Command) {
+	// Get the current config
+	config := config_loader.ConfigMap()
+
 	contextName, _ := cmd.Flags().GetString("name")
 	// Check if the context exists
-	exists, err := contextExists(contextName)
+	exists, err := contextExists(contextName, config)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
@@ -64,8 +64,8 @@ func useContextMain(cmd *cobra.Command) {
 		os.Exit(1)
 	}
 	// Set the top-level "context" key in the config file to the name of the context
-	viper.Set("current_context", contextName)
-	err = viper.WriteConfig()
+	config.Set("current_context", contextName)
+	err = config.WriteConfig()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)

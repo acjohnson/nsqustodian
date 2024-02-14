@@ -18,7 +18,9 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 
+	config_loader "github.com/acjohnson/nsqustodian/cmd/config_loader"
 	"github.com/spf13/cobra"
 )
 
@@ -33,8 +35,42 @@ var deleteContextCmd = &cobra.Command{
 }
 
 func deleteContextMain(cmd *cobra.Command) {
+	// Get the current config
+	config := config_loader.ConfigMap()
+
 	contextName, _ := cmd.Flags().GetString("name")
-	fmt.Println(contextName)
+	//configFile := config.ConfigFileUsed()
+
+	err := config.ReadInConfig()
+	if err != nil {
+		log.Fatalf("Error reading configuration: %v", err)
+	}
+
+	// Get the contexts map from the configuration
+	contexts := config.Get("contexts").(map[string]interface{})
+
+	// Check if the current context is being deleted
+	currentContext := config.GetString("current_context")
+	if currentContext == contextName {
+		for key := range contexts {
+			if key != contextName {
+				config.Set("current_context", key)
+				break
+			}
+		}
+	}
+
+	// Delete the context from the map
+	delete(contexts, contextName)
+
+	// Write the updated configuration to the file
+	err = config.WriteConfig()
+	if err != nil {
+		log.Fatalf("Error writing configuration: %v", err)
+	}
+
+	fmt.Printf("Context '%s' deleted successfully.\n", contextName)
+
 }
 
 func init() {
