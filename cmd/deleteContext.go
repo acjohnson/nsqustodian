@@ -28,11 +28,17 @@ var deleteContextCmd = &cobra.Command{
 	Short: "Deletes a named context from the config file.",
 	Long:  `Deletes a named context from the config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("delete-context called")
+		deleteContextMain(cmd)
 	},
 }
 
+func deleteContextMain(cmd *cobra.Command) {
+	contextName, _ := cmd.Flags().GetString("name")
+	fmt.Println(contextName)
+}
+
 func init() {
+	deleteContextCmd.Flags().StringP("name", "n", "", "Name of the context to delete")
 	configCmd.AddCommand(deleteContextCmd)
 
 	// Here you will define your flags and configuration settings.

@@ -34,7 +34,7 @@ var pauseTopicCmd = &cobra.Command{
 	Short: "Pause NSQ topic.",
 	Long:  `Pause NSQ topic.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		main(cmd)
+		pauseTopicMain(cmd)
 	},
 }
 
@@ -85,7 +85,7 @@ func pauseTopic(nsqadminAddr string, topic string, httpHeaders string) error {
 	return nil
 }
 
-func main(cmd *cobra.Command) {
+func pauseTopicMain(cmd *cobra.Command) {
 	topic, _ := cmd.Flags().GetString("topic")
 
 	// Get the current config

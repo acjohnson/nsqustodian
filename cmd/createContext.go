@@ -29,75 +29,79 @@ var createContextCmd = &cobra.Command{
 	Short: "Create a new NSQustodian context",
 	Long:  `Create a new named context in the NSQustodian config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		contextName, _ := cmd.Flags().GetString("name")
-		nsqLookupds, _ := cmd.Flags().GetString("nsq-lookupds")
-		nsqAdmin, _ := cmd.Flags().GetString("nsq-admin")
-		httpHeaders, _ := cmd.Flags().GetString("http-headers")
+		createContextMain(cmd)
+	},
+}
 
-		config := viper.GetViper()
+func createContextMain(cmd *cobra.Command) {
+	contextName, _ := cmd.Flags().GetString("name")
+	nsqLookupds, _ := cmd.Flags().GetString("nsq-lookupds")
+	nsqAdmin, _ := cmd.Flags().GetString("nsq-admin")
+	httpHeaders, _ := cmd.Flags().GetString("http-headers")
 
-		// Read the existing config file
-		err := config.ReadInConfig()
-		if err != nil {
-			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-				// Config file not found, so create a new one
-				config.Set("contexts", map[string]interface{}{
-					contextName: map[string]interface{}{
-						"nsq-lookupds": nsqLookupds,
-						"nsq-admin":    nsqAdmin,
-						"http-headers": httpHeaders,
-					},
-				})
-			} else {
-				fmt.Printf("Failed to read config file: %s\n", err)
-				return
-			}
-		} else {
-			// Merge the new context into the existing config
-			contexts := config.Get("contexts").(map[string]interface{})
-			if _, ok := contexts[contextName]; !ok {
-				contexts[contextName] = map[string]interface{}{
+	config := viper.GetViper()
+
+	// Read the existing config file
+	err := config.ReadInConfig()
+	if err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// Config file not found, so create a new one
+			config.Set("contexts", map[string]interface{}{
+				contextName: map[string]interface{}{
 					"nsq-lookupds": nsqLookupds,
 					"nsq-admin":    nsqAdmin,
 					"http-headers": httpHeaders,
-				}
-			}
-			context := contexts[contextName].(map[string]interface{})
-			if nsqLookupds != "" {
-				context["nsq-lookupds"] = nsqLookupds
-			}
-			if nsqAdmin != "" {
-				context["nsq-admin"] = nsqAdmin
-			}
-			if httpHeaders != "" {
-				context["http-headers"] = httpHeaders
-			}
-		}
-
-		// Write the updated config file back to disk
-		if err := config.WriteConfig(); err != nil {
-			fmt.Printf("%s\n", err)
-			if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-				// SafeWriteConfig() creates the config
-				err = config.SafeWriteConfig()
-				if err != nil {
-					fmt.Printf("Failed to write config file: %s\n", err)
-					return
-				}
-				// WriteConfig() writes the new merged config...
-				err = config.WriteConfig()
-				if err != nil {
-					fmt.Printf("Failed to write config file: %s\n", err)
-					return
-				}
-
-				fmt.Printf("Context '%s' created successfully.\n", contextName)
-			}
+				},
+			})
 		} else {
-			fmt.Printf("Context '%s' created successfully.\n", contextName)
-
+			fmt.Printf("Failed to read config file: %s\n", err)
+			return
 		}
-	},
+	} else {
+		// Merge the new context into the existing config
+		contexts := config.Get("contexts").(map[string]interface{})
+		if _, ok := contexts[contextName]; !ok {
+			contexts[contextName] = map[string]interface{}{
+				"nsq-lookupds": nsqLookupds,
+				"nsq-admin":    nsqAdmin,
+				"http-headers": httpHeaders,
+			}
+		}
+		context := contexts[contextName].(map[string]interface{})
+		if nsqLookupds != "" {
+			context["nsq-lookupds"] = nsqLookupds
+		}
+		if nsqAdmin != "" {
+			context["nsq-admin"] = nsqAdmin
+		}
+		if httpHeaders != "" {
+			context["http-headers"] = httpHeaders
+		}
+	}
+
+	// Write the updated config file back to disk
+	if err := config.WriteConfig(); err != nil {
+		fmt.Printf("%s\n", err)
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			// SafeWriteConfig() creates the config
+			err = config.SafeWriteConfig()
+			if err != nil {
+				fmt.Printf("Failed to write config file: %s\n", err)
+				return
+			}
+			// WriteConfig() writes the new merged config...
+			err = config.WriteConfig()
+			if err != nil {
+				fmt.Printf("Failed to write config file: %s\n", err)
+				return
+			}
+
+			fmt.Printf("Context '%s' created successfully.\n", contextName)
+		}
+	} else {
+		fmt.Printf("Context '%s' created successfully.\n", contextName)
+
+	}
 }
 
 func init() {

@@ -33,6 +33,7 @@ var unpauseTopicCmd = &cobra.Command{
 }
 
 func init() {
+	unpauseTopicCmd.Flags().StringP("topic", "n", "", "Topic to unpause")
 	topicsCmd.AddCommand(unpauseTopicCmd)
 
 	// Here you will define your flags and configuration settings.
