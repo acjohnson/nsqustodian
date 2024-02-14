@@ -26,7 +26,7 @@ import (
 var unpauseChannelCmd = &cobra.Command{
 	Use:   "unpause-channel",
 	Short: "Unpause NSQ channel.",
-	Long: `Unpause NSQ channel.`,
+	Long:  `Unpause NSQ channel.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("unpause-channel called")
 	},

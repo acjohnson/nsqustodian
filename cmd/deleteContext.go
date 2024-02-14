@@ -26,7 +26,7 @@ import (
 var deleteContextCmd = &cobra.Command{
 	Use:   "delete-context",
 	Short: "Deletes a named context from the config file.",
-	Long: `Deletes a named context from the config file.`,
+	Long:  `Deletes a named context from the config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("delete-context called")
 	},

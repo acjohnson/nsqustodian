@@ -26,7 +26,7 @@ import (
 var currentContextCmd = &cobra.Command{
 	Use:   "current-context",
 	Short: "Displays the currently active context in the config file.",
-	Long: `Displays the currently active context in the config file.`,
+	Long:  `Displays the currently active context in the config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("current-context called")
 	},

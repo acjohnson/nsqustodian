@@ -26,7 +26,7 @@ import (
 var unpauseTopicCmd = &cobra.Command{
 	Use:   "unpause-topic",
 	Short: "Unpause NSQ topic.",
-	Long: `Unpause NSQ topic.`,
+	Long:  `Unpause NSQ topic.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("unpause-topic called")
 	},

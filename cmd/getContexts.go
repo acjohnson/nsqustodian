@@ -26,7 +26,7 @@ import (
 var getContextsCmd = &cobra.Command{
 	Use:   "get-contexts",
 	Short: "Lists all named contexts in the config file.",
-	Long: `Lists all named contexts in the config file.`,
+	Long:  `Lists all named contexts in the config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("get-contexts called")
 	},

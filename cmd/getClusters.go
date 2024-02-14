@@ -26,7 +26,7 @@ import (
 var getClustersCmd = &cobra.Command{
 	Use:   "get-clusters",
 	Short: "Lists all configured NSQ clusters and their context names.",
-	Long: `Lists all configured NSQ clusters and their context names.`,
+	Long:  `Lists all configured NSQ clusters and their context names.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("get-clusters called")
 	},

@@ -18,21 +18,61 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	config_loader "github.com/acjohnson/nsqustodian/cmd/config_loader"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // useContextCmd represents the useContext command
 var useContextCmd = &cobra.Command{
 	Use:   "use-context",
 	Short: "Sets the active context for managing NSQ clusters in the config file.",
-	Long: `Sets the active context for managing NSQ clusters in the config file.`,
+	Long:  `Sets the active context for managing NSQ clusters in the config file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("use-context called")
+		//fmt.Println("use-context called")
+		contextName, _ := cmd.Flags().GetString("name")
+		// Check if the context exists
+		exists, err := contextExists(contextName)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error:", err)
+			os.Exit(1)
+		}
+		if !exists {
+			fmt.Fprintln(os.Stderr, "Error:", contextName+" is not a valid context")
+			fmt.Println("To create a new context, run 'nsqustodian create-context'")
+			os.Exit(1)
+		}
+		// Set the top-level "context" key in the config file to the name of the context
+		viper.Set("current_context", contextName)
+		err = viper.WriteConfig()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Error:", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("Switched to context %s\n", contextName)
 	},
 }
 
+func contextExists(name string) (bool, error) {
+	// Get the current config
+	config := config_loader.ConfigMap()
+
+	// Check if the "contexts" key exists
+	contexts, ok := config.Get("contexts").(map[string]interface{})
+	if !ok {
+		return false, fmt.Errorf("config file does not contain a 'contexts' key")
+	}
+
+	// Check if the named context exists
+	_, ok = contexts[name]
+	return ok, nil
+}
+
 func init() {
+	useContextCmd.Flags().StringP("name", "n", "", "Name of the context to use")
 	configCmd.AddCommand(useContextCmd)
 
 	// Here you will define your flags and configuration settings.
