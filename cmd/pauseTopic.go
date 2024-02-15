@@ -24,7 +24,7 @@ import (
 	"os"
 	"strings"
 
-	config_loader "github.com/acjohnson/nsqustodian/cmd/config_loader"
+	configloader "github.com/acjohnson/nsqustodian/cmd/configloader"
 	"github.com/spf13/cobra"
 )
 
@@ -89,7 +89,7 @@ func pauseTopicMain(cmd *cobra.Command) {
 	topic, _ := cmd.Flags().GetString("topic")
 
 	// Get the current config
-	config := config_loader.ConfigMap()
+	config := configloader.ConfigMap()
 	currentContext := config.GetString("current_context")
 	contextCfg := config.Sub("contexts")
 	subCfg := contextCfg.Sub(currentContext)

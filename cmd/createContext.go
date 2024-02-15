@@ -19,7 +19,7 @@ package cmd
 import (
 	"fmt"
 
-	config_loader "github.com/acjohnson/nsqustodian/cmd/config_loader"
+	configloader "github.com/acjohnson/nsqustodian/cmd/configloader"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -40,7 +40,7 @@ func createContextMain(cmd *cobra.Command) {
 	nsqAdmin, _ := cmd.Flags().GetString("nsq-admin")
 	httpHeaders, _ := cmd.Flags().GetString("http-headers")
 
-	config := config_loader.ConfigMap()
+	config := configloader.ConfigMap()
 
 	// Read the existing config file
 	err := config.ReadInConfig()

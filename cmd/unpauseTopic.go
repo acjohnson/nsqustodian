@@ -19,6 +19,7 @@ package cmd
 import (
 	"fmt"
 
+	//configloader "github.com/acjohnson/nsqustodian/cmd/configloader"
 	"github.com/spf13/cobra"
 )
 
@@ -29,11 +30,16 @@ var unpauseTopicCmd = &cobra.Command{
 	Long:  `Unpause NSQ topic.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("unpause-topic called")
+		unpauseTopicMain(cmd)
 	},
+}
+
+func unpauseTopicMain(cmd *cobra.Command) {
 }
 
 func init() {
 	unpauseTopicCmd.Flags().StringP("topic", "n", "", "Topic to unpause")
+	unpauseTopicCmd.MarkFlagRequired("name")
 	topicsCmd.AddCommand(unpauseTopicCmd)
 
 	// Here you will define your flags and configuration settings.

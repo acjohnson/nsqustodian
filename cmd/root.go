@@ -19,7 +19,7 @@ package cmd
 import (
 	"os"
 
-	config_loader "github.com/acjohnson/nsqustodian/cmd/config_loader"
+	configloader "github.com/acjohnson/nsqustodian/cmd/configloader"
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +45,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(config_loader.InitConfig)
+	cobra.OnInitialize(configloader.InitConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
