@@ -60,7 +60,7 @@ func useContextMain(cmd *cobra.Command) {
 	}
 	if !exists {
 		fmt.Fprintln(os.Stderr, "Error:", contextName+" is not a valid context")
-		fmt.Println("To create a new context, run 'nsqustodian create-context'")
+		fmt.Println("To create a new context, run 'nsqustodian config create-context'")
 		os.Exit(1)
 	}
 	// Set the top-level "context" key in the config file to the name of the context
@@ -76,6 +76,7 @@ func useContextMain(cmd *cobra.Command) {
 
 func init() {
 	useContextCmd.Flags().StringP("name", "n", "", "Name of the context to use")
+	useContextCmd.MarkFlagRequired("name")
 	configCmd.AddCommand(useContextCmd)
 
 	// Here you will define your flags and configuration settings.

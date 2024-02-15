@@ -75,6 +75,7 @@ func deleteContextMain(cmd *cobra.Command) {
 
 func init() {
 	deleteContextCmd.Flags().StringP("name", "n", "", "Name of the context to delete")
+	deleteContextCmd.MarkFlagRequired("name")
 	configCmd.AddCommand(deleteContextCmd)
 
 	// Here you will define your flags and configuration settings.

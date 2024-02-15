@@ -90,11 +90,11 @@ func pauseTopicMain(cmd *cobra.Command) {
 
 	// Get the current config
 	config := config_loader.ConfigMap()
-	currentContext := config.Get("current_context").(string)
+	currentContext := config.GetString("current_context")
 	contextCfg := config.Sub("contexts")
 	subCfg := contextCfg.Sub(currentContext)
-	nsqadminAddr := subCfg.Get("nsq-admin").(string)
-	httpHeaders := subCfg.Get("http-headers").(string)
+	nsqadminAddr := subCfg.GetString("nsq-admin")
+	httpHeaders := subCfg.GetString("http-headers")
 
 	err := pauseTopic(nsqadminAddr, topic, httpHeaders)
 	if err != nil {

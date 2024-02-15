@@ -36,7 +36,7 @@ var currentContextCmd = &cobra.Command{
 func currentContextMain(cmd *cobra.Command) {
 	// Get the current config
 	config := config_loader.ConfigMap()
-	currentContext := config.Get("current_context").(string)
+	currentContext := config.GetString("current_context")
 	fmt.Printf("Current context is: %s\n", currentContext)
 }
 
