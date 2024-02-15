@@ -18,8 +18,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
-	//configloader "github.com/acjohnson/nsqustodian/cmd/configloader"
+	configloader "github.com/acjohnson/nsqustodian/cmd/configloader"
+	nsqadmin "github.com/acjohnson/nsqustodian/cmd/nsqadmin"
 	"github.com/spf13/cobra"
 )
 
@@ -29,17 +31,47 @@ var unpauseTopicCmd = &cobra.Command{
 	Short: "Unpause NSQ topic.",
 	Long:  `Unpause NSQ topic.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("unpause-topic called")
 		unpauseTopicMain(cmd)
 	},
 }
 
+func unpauseTopic(nsqadminAddr string, topic string, httpHeaders string) error {
+	payload := []byte(`{"action":"unpause"}`)
+	url := fmt.Sprintf("https://%s:443/api/topics/%s", nsqadminAddr, topic)
+	method := "POST"
+
+	err := nsqadmin.NsqAdminCall(nsqadminAddr, httpHeaders, payload, url, method)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	// If we got here, the topic was successfully unpaused
+	fmt.Printf("Topic '%s' unpaused successfully.\n", topic)
+	return nil
+}
+
 func unpauseTopicMain(cmd *cobra.Command) {
+	topic, _ := cmd.Flags().GetString("topic")
+
+	// Get the current config
+	config := configloader.ConfigMap()
+	currentContext := config.GetString("current_context")
+	contextCfg := config.Sub("contexts")
+	subCfg := contextCfg.Sub(currentContext)
+	nsqadminAddr := subCfg.GetString("nsq-admin")
+	httpHeaders := subCfg.GetString("http-headers")
+
+	err := unpauseTopic(nsqadminAddr, topic, httpHeaders)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
 func init() {
-	unpauseTopicCmd.Flags().StringP("topic", "n", "", "Topic to unpause")
-	unpauseTopicCmd.MarkFlagRequired("name")
+	unpauseTopicCmd.Flags().StringP("topic", "t", "", "Topic to unpause")
+	unpauseTopicCmd.MarkFlagRequired("topic")
 	topicsCmd.AddCommand(unpauseTopicCmd)
 
 	// Here you will define your flags and configuration settings.
