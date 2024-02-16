@@ -24,10 +24,10 @@ import (
 	"strings"
 )
 
-func NsqAdminCall(nsqadminAddr string, httpHeaders string, payload []byte, url string, method string) error {
+func NsqAdminCall(nsqadminAddr string, httpHeaders string, payload []byte, url string, method string) (string, error) {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(payload))
 	if err != nil {
-		return err
+		return "Failed to create http request: ", err
 	}
 	headerStrings := strings.Split(httpHeaders, ",")
 
@@ -46,22 +46,19 @@ func NsqAdminCall(nsqadminAddr string, httpHeaders string, payload []byte, url s
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		return err
+		return "Error in http response: ", err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Error reading response body:", err)
-		return err
+		return "Error reading response body: ", err
 	}
-
-	fmt.Println("Response body: ", string(body))
 
 	if resp.StatusCode != http.StatusOK {
-		bodyBytes, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("Failed to make NSQ admin call: %s", string(bodyBytes))
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		return fmt.Sprintf("Failed to make NSQ admin call, status %s, response: %s", string(resp.StatusCode), string(bodyBytes)), err
 	}
 
-	return nil
+	return string(body), nil
 }

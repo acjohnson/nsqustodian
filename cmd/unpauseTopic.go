@@ -40,7 +40,9 @@ func unpauseTopic(nsqadminAddr string, topic string, httpHeaders string) error {
 	url := fmt.Sprintf("https://%s:443/api/topics/%s", nsqadminAddr, topic)
 	method := "POST"
 
-	err := nsqadmin.NsqAdminCall(nsqadminAddr, httpHeaders, payload, url, method)
+	r, err := nsqadmin.NsqAdminCall(nsqadminAddr, httpHeaders, payload, url, method)
+	fmt.Println("Response body:", string(r))
+
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

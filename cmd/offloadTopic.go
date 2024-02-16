@@ -17,8 +17,18 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 package cmd
 
 import (
+	//"bytes"
+	"encoding/json"
 	"fmt"
+	//"log"
+	"os"
 
+	configloader "github.com/acjohnson/nsqustodian/cmd/configloader"
+	nsqadmin "github.com/acjohnson/nsqustodian/cmd/nsqadmin"
+	//"github.com/aws/aws-sdk-go/aws"
+	//"github.com/aws/aws-sdk-go/aws/session"
+	//"github.com/aws/aws-sdk-go/service/s3"
+	//"github.com/nsqio/go-nsq"
 	"github.com/spf13/cobra"
 )
 
@@ -28,8 +38,63 @@ var offloadTopicCmd = &cobra.Command{
 	Short: "Offload messages from an NSQ topic to an S3 bucket",
 	Long:  `Offload messages from an NSQ topic to an S3 bucket in JSON format.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("offloadTopic called")
+		offloadTopicMain(cmd)
 	},
+}
+
+type NSQNode struct {
+	Hostname         string `json:"hostname"`
+	BroadcastAddress string `json:"broadcast_address"`
+	TcpPort          int    `json:"tcp_port"`
+	Version          string `json:"version"`
+}
+
+type NSQNodeResponse struct {
+	Nodes []NSQNode `json:"nodes"`
+}
+
+func getNSQNodes(nsqadminAddr string, httpHeaders string) (string, error) {
+	payload := []byte(`{}`)
+	url := fmt.Sprintf("https://%s:443/api/nodes", nsqadminAddr)
+	method := "GET"
+
+	r, err := nsqadmin.NsqAdminCall(nsqadminAddr, httpHeaders, payload, url, method)
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	return r, nil
+}
+
+func offloadTopicMain(cmd *cobra.Command) {
+	topic, _ := cmd.Flags().GetString("topic")
+	s3BucketName, _ := cmd.Flags().GetString("s3-bucket-name")
+	s3BucketKey, _ := cmd.Flags().GetString("s3-bucket-key")
+	fmt.Printf("topic: %s\ns3-bucket-name: %s\ns3-bucket-key: %s\n", topic, s3BucketName, s3BucketKey)
+
+	// Get the current config
+	config := configloader.ConfigMap()
+	currentContext := config.GetString("current_context")
+	contextCfg := config.Sub("contexts")
+	subCfg := contextCfg.Sub(currentContext)
+	nsqadminAddr := subCfg.GetString("nsq-admin")
+	httpHeaders := subCfg.GetString("http-headers")
+
+	r, err := getNSQNodes(nsqadminAddr, httpHeaders)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	var resp NSQNodeResponse
+	json.Unmarshal([]byte(r), &resp)
+
+	for _, node := range resp.Nodes {
+		fmt.Printf("Hostname: %s, Broadcast Address: %s, TCP Port: %d, Version: %s\n",
+			node.Hostname, node.BroadcastAddress, node.TcpPort, node.Version)
+	}
 }
 
 func init() {
