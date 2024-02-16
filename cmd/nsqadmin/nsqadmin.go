@@ -27,10 +27,11 @@ import (
 )
 
 type NsqNode struct {
-	Hostname         string `json:"hostname"`
-	BroadcastAddress string `json:"broadcast_address"`
-	TcpPort          int    `json:"tcp_port"`
-	Version          string `json:"version"`
+	Hostname         string   `json:"hostname"`
+	BroadcastAddress string   `json:"broadcast_address"`
+	TcpPort          int      `json:"tcp_port"`
+	Version          string   `json:"version"`
+	RemoteAddresses  []string `json:"remote_addresses"`
 }
 
 type NsqNodeResponse struct {
@@ -89,7 +90,10 @@ func GetNsqNodes(nsqadminAddr string, httpHeaders string) (NsqNodeResponse, erro
 	}
 
 	var resp NsqNodeResponse
-	json.Unmarshal([]byte(r), &resp)
+	err = json.Unmarshal([]byte(r), &resp)
+	if err != nil {
+		return resp, err
+	}
 
 	return resp, nil
 }
