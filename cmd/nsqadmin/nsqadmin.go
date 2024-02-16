@@ -18,11 +18,24 @@ package nsqadmin
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 )
+
+type NsqNode struct {
+	Hostname         string `json:"hostname"`
+	BroadcastAddress string `json:"broadcast_address"`
+	TcpPort          int    `json:"tcp_port"`
+	Version          string `json:"version"`
+}
+
+type NsqNodeResponse struct {
+	Nodes []NsqNode `json:"nodes"`
+}
 
 func NsqAdminCall(nsqadminAddr string, httpHeaders string, payload []byte, url string, method string) (string, error) {
 	req, err := http.NewRequest(method, url, bytes.NewBuffer(payload))
@@ -61,4 +74,22 @@ func NsqAdminCall(nsqadminAddr string, httpHeaders string, payload []byte, url s
 	}
 
 	return string(body), nil
+}
+
+func GetNsqNodes(nsqadminAddr string, httpHeaders string) (NsqNodeResponse, error) {
+	payload := []byte(`{}`)
+	url := fmt.Sprintf("https://%s:443/api/nodes", nsqadminAddr)
+	method := "GET"
+
+	r, err := NsqAdminCall(nsqadminAddr, httpHeaders, payload, url, method)
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+
+	var resp NsqNodeResponse
+	json.Unmarshal([]byte(r), &resp)
+
+	return resp, nil
 }
